@@ -1,5 +1,11 @@
-class Event {
+class Event {}
 
+class IncrementEvent is Event {
+	construct new(){}
+}
+
+class DecrementEvent is Event {
+	construct new(){}
 }
 
 class EventListener {
@@ -14,12 +20,21 @@ class EventListener {
 	}
 
 	dispatch(ev){
-		_listeners[ev].each { |listener| listener.call(ev) }
+      if( !(ev is Event) ){
+        Fiber.throw("Can only dispatch subclasses of Event")
+      }
+		(_listeners[ev.type] || []).each { |listener| listener.call(ev) }
 	}
 }
 
 class Eventful is EventListener {
 	construct new(){
-		super.call()
+		super()
 	}
 }
+
+var eventHandler = Eventful.new()
+
+eventHandler.addListener(IncrementEvent) { |event| System.print("inc: %(event)") }
+
+eventHandler.dispatch(IncrementEvent.new())
