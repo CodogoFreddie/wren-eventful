@@ -1,4 +1,4 @@
-import "./module" for Event, EventListener
+import "./eventful" for Event, EventListener
 
 class IncrementEvent is Event {
   construct new(){ }
