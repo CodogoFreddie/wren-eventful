@@ -1,20 +1,37 @@
 class Event {}
 
 class EventListener {
-	construct new(){
-		_listeners = {}
-	}
+  newId { 
+    _id = _id + 1
+    return _id
+  }
+  
+  construct new(){
+    _listeners = {}
+    _id = 0
+  }
 
-	addListener(ev, fn){
-		var thoseListeners = _listeners[ev] || []
-		thoseListeners.add(fn)
-		_listeners[ev] = thoseListeners
-	}
+  addListener(ev, fn){
+    var listenerId = this.newId
 
-	dispatch(ev){
-      if( !(ev is Event) ){
-        Fiber.throw("Can only dispatch subclasses of Event")
-      }
-		(_listeners[ev.type] || []).each { |listener| listener.call(ev) }
-	}
+    var thoseListeners = _listeners[ev] || {}
+    thoseListeners[listenerId] = fn
+    _listeners[ev] = thoseListeners
+
+    return listenerId
+  }
+
+  removeListener(ev, id){
+    _listeners[ev].remove(id)
+  }
+
+  dispatch(ev){
+    if( !(ev is Event) ){
+      Fiber.throw("Can only dispatch subclasses of Event")
+    }
+
+    for(listener in (_listeners[ev.type] || {}).values){
+      listener.call(ev)
+    }
+  }
 }
